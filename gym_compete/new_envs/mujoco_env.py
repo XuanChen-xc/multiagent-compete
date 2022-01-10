@@ -62,19 +62,26 @@ class MujocoEnv(gym.Env):
             "video.frames_per_second": int(np.round(1.0 / self.dt)),
         }
 
-        self.init_qpos = self.model.data.qpos.ravel().copy()
-        self.init_qvel = self.model.data.qvel.ravel().copy()
+        self.init_qpos = self.sim.data.qpos.ravel().copy()
+        self.init_qvel = self.sim.data.qvel.ravel().copy()
 
-        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
-        low, high = bounds.T
-        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32) 
+        self._set_action_space()
 
         action = self.action_space.sample()
         observation, _reward, done, _info = self.step(action)
-        assert not done        
+        assert not done
 
+        self._set_observation_space(observation)
+
+    def _set_action_space(self):
+        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
+        low, high = bounds.T
+        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
+        return self.action_space
+
+    def _set_observation_space(self, observation):
         self.observation_space = convert_observation_to_space(observation)
-
+        return self.observation_space
 
    # methods to override:
     # ----------------------------
