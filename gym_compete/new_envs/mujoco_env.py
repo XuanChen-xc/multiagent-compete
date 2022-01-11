@@ -20,7 +20,7 @@ try:
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you need to install mujoco_py, and also perform the setup instructions here: https://github.com/openai/mujoco-py/.)".format(e))
 
-DEFAULT_SIZE = 500
+DEFAULT_SIZE = 200
 
 def convert_observation_to_space(observation):
     if isinstance(observation, dict):
@@ -56,6 +56,7 @@ class MujocoEnv(gym.Env):
         self.sim = mujoco_py.MjSim(self.model)
         self.data = self.sim.data
         self.viewer = None
+        self._viewers = {}
 
         self.metadata = {
             "render.modes": ["human", "rgb_array", "depth_array"],
@@ -73,6 +74,8 @@ class MujocoEnv(gym.Env):
 
         self._set_observation_space(observation)
 
+        self.seed()
+
     def _set_action_space(self):
         bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
         low, high = bounds.T
@@ -82,6 +85,10 @@ class MujocoEnv(gym.Env):
     def _set_observation_space(self, observation):
         self.observation_space = convert_observation_to_space(observation)
         return self.observation_space
+    
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
 
    # methods to override:
     # ----------------------------
@@ -104,7 +111,6 @@ class MujocoEnv(gym.Env):
     # -----------------------------
 
     def reset(self, seed: Optional[int] = None):
-        super().reset(seed=seed)
         self.sim.reset()
         ob = self.reset_model()
         return ob

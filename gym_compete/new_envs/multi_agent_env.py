@@ -4,7 +4,7 @@ from .multi_agent_scene import MultiAgentScene
 from .agents import *
 from .utils import create_multiagent_xml
 import os
-import six
+
 
 class MultiAgentEnv(Env):
     '''
@@ -90,9 +90,9 @@ class MultiAgentEnv(Env):
         self._set_action_space()
         self.metadata = self.env_scene.metadata
         self.move_reward_weight = move_reward_weight
-        gid = self.env_scene.model.geom_names.index(six.b('rightgoal'))
+        gid = self.env_scene.model.geom_names.index('rightgoal')
         self.RIGHT_GOAL = self.env_scene.model.geom_pos[gid][0]
-        gid = self.env_scene.model.geom_names.index(six.b('leftgoal'))
+        gid = self.env_scene.model.geom_names.index('leftgoal')
         self.LEFT_GOAL = self.env_scene.model.geom_pos[gid][0]
         for i in range(self.num_agents):
             if self.agents[i].get_qpos()[0] > 0:

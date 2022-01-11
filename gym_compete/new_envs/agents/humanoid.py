@@ -3,7 +3,9 @@ from gym.spaces import Box
 import numpy as np
 
 
-def mass_center(mass, xpos):
+def mass_center(model, sim):
+    mass = np.expand_dims(model.body_mass, 1)
+    xpos = sim.data.xipos
     return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
 
 
@@ -22,10 +24,10 @@ class Humanoid(Agent):
             self.move_left = True
 
     def before_step(self):
-        self._pos_before = mass_center(self.get_body_mass(), self.get_xipos())
+        self._pos_before = mass_center(self.env.model, self.env.sim)
 
     def after_step(self, action):
-        pos_after = mass_center(self.get_body_mass(), self.get_xipos())
+        pos_after = mass_center(self.env.model, self.env.sim)
         forward_reward = 0.25 * (pos_after - self._pos_before) / self.env.model.opt.timestep
         if self.move_left:
             forward_reward *= -1
