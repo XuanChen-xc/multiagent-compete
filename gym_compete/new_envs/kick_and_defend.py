@@ -1,7 +1,6 @@
 from .multi_agent_env import MultiAgentEnv
 import numpy as np
 from .agents import Agent
-import six
 from gym import spaces
 
 class KickAndDefend(MultiAgentEnv):
@@ -10,7 +9,7 @@ class KickAndDefend(MultiAgentEnv):
         self._max_episode_steps = max_episode_steps
         self._elapsed_steps = 0
         self.GOAL_REWARD = 1000
-        self.ball_jnt_id = self.env_scene.model.joint_names.index(six.b('ball'))
+        self.ball_jnt_id = self.env_scene.model.joint_names.index('ball')
         self.jnt_nqpos = Agent.JNT_NPOS[int(self.env_scene.model.jnt_type[self.ball_jnt_id])]
         if self.agents[0].team == 'walker':
             self.walker_id = 0
@@ -40,33 +39,33 @@ class KickAndDefend(MultiAgentEnv):
 
     def get_ball_qpos(self):
         start_idx = int(self.env_scene.model.jnt_qposadr[self.ball_jnt_id])
-        return self.env_scene.model.data.qpos[start_idx:start_idx+self.jnt_nqpos]
+        return self.env_scene.sim.data.qpos[start_idx:start_idx+self.jnt_nqpos]
 
     def get_ball_qvel(self):
         start_idx = int(self.env_scene.model.jnt_dofadr[self.ball_jnt_id])
         # ball has 6 components: 3d translation, 3d rotational
-        return self.env_scene.model.data.qvel[start_idx:start_idx+6]
+        return self.env_scene.sim.data.qvel[start_idx:start_idx+6]
 
     def get_ball_contacts(self, agent_id):
-        mjcontacts = self.env_scene.data._wrapped.contents.contact
-        ncon = self.env_scene.model.data.ncon
+        mjcontacts = self.env_scene.data.contact
+        ncon = self.env_scene.sim.data.ncon
         contacts = []
         for i in range(ncon):
             ct = mjcontacts[i]
             g1 , g2 = ct.geom1, ct.geom2
             g1 = self.env_scene.model.geom_names[g1]
             g2 = self.env_scene.model.geom_names[g2]
-            if g1.find(six.b('ball')) >= 0:
-                if g2.find(six.b('agent' + str(agent_id))) >= 0:
+            if g1.find('ball') >= 0:
+                if g2.find('agent' + str(agent_id)) >= 0:
                     if ct.dist < 0:
                         contacts.append((g1, g2, ct.dist))
         return contacts
 
     def _set_ball_xyz(self, xyz):
         start = int(self.env_scene.model.jnt_qposadr[self.ball_jnt_id])
-        qpos = self.env_scene.model.data.qpos.flatten().copy()
+        qpos = self.env_scene.sim.data.qpos.flatten().copy()
         qpos[start:start+3] = xyz
-        qvel = self.env_scene.model.data.qvel.flatten()
+        qvel = self.env_scene.sim.data.qvel.flatten()
         self.env_scene.set_state(qpos, qvel)
 
     def is_goal(self):
@@ -141,9 +140,9 @@ class KickAndDefend(MultiAgentEnv):
 
     def _set_ball_vel(self, vel_xyz):
         start = int(self.env_scene.model.jnt_dofadr[self.ball_jnt_id])
-        qvel = self.env_scene.model.data.qvel.flatten().copy()
+        qvel = self.env_scene.sim.data.qvel.flatten().copy()
         qvel[start:start+len(vel_xyz)] = vel_xyz
-        qpos = self.env_scene.model.data.qpos.flatten()
+        qpos = self.env_scene.sim.data.qpos.flatten()
         self.env_scene.set_state(qpos, qvel)
 
     def _set_random_ball_pos(self):
