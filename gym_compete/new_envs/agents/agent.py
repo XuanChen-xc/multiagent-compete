@@ -73,7 +73,7 @@ class Agent(object):
         self._low = low
         self._high = high
         self.action_space = Box(low, high)
-
+    
     # @property
     # def observation_space(self):
     #     return self.observation_space
@@ -104,6 +104,7 @@ class Agent(object):
         while self.body_dofnum[last_dof_body_id] == 0:
             last_dof_body_id -= 1
         self.qvel_end_idx = int(dof[-1] + self.body_dofnum[last_dof_body_id])
+       
 
 
     def _set_joint(self):
@@ -118,6 +119,7 @@ class Agent(object):
         self.nq = sum(self.jnt_nqpos)
         self.qpos_start_idx = int(self.jnt_qposadr[0])
         self.qpos_end_idx = int(self.jnt_qposadr[-1] + self.jnt_nqpos[-1])
+      
 
         # self.jnt_dofadr = self.env.model.jnt_dofadr[self.joint_ids]
         # dof = list_filter(lambda x: x >= 0, self.jnt_dofadr)
@@ -144,6 +146,7 @@ class Agent(object):
             qpos_end_idx = int(other_jnt_qposadr[-1] + jnt_nqpos[-1])
             assert nq == qpos_end_idx - qpos_start_idx, (i, nq, qpos_start_idx, qpos_end_idx)
             self._other_qpos_idx[i] = (qpos_start_idx, qpos_end_idx)
+        
 
     def get_other_agent_qpos(self):
         other_qpos = {}
@@ -219,11 +222,11 @@ class Agent(object):
     def get_cinert(self):
         return self.env.sim.data.cinert[self.body_ids]
 
-    def get_xmat(self):
-        return self.env.sim.data.xmat[self.body_ids]
+    def get_body_xmat(self):
+        return self.env.sim.data.body_xmat[self.body_ids]
 
     def get_torso_xmat(self):
-        return self.env.sim.data.xmat[self.body_ids[self.body_names.index('agent%d/torso' % self.id)]]
+        return self.env.sim.data.body_xmat[self.body_ids[self.body_names.index('agent%d/torso' % self.id)]]
 
     # def get_ctrl(self):
     #     return self.env.model.data.ctrl[self.joint_ids]

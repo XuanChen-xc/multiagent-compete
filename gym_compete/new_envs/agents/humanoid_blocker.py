@@ -18,6 +18,8 @@ class HumanoidBlocker(Humanoid):
         pass
 
     def after_step(self, action):
+        # pos_after = mass_center(np.expand_dims(self.env.model.body_mass, 1), self.env.sim.xipos)
+
         forward_reward = 0.
         ctrl_cost = .1 * np.square(action).sum()
         cfrc_ext = self.get_cfrc_ext()

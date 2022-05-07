@@ -84,7 +84,7 @@ class MultiAgentEnv(Env):
         print("Scene XML path:", self._env_xml_path)
         self.env_scene = MultiAgentScene(self._env_xml_path, self.num_agents)
         print("Created Scene with agents")
-        for i, agent in self.agents.items():
+        for i, agent in self.agents.items():   
             agent.set_env(self.env_scene)
         self._set_observation_space()
         self._set_action_space()

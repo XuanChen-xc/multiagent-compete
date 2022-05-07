@@ -33,9 +33,18 @@ class MultiAgentScene(mujoco_env.MujocoEnv):
         return obs
 
     def reset_model(self):
-        qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.1, high=.1)
+        qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.1, high=.1) 
+       
+        qpos[25:26] = self.init_qpos[25:26] + self.np_random.uniform(size=1, low=-.3, high=.3) 
+        # print(self.init_qpos[24:27])
+        # qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.3, high=.3) 
+        # qpos[27] = 1
+        
         qvel = self.init_qvel + self.np_random.randn(self.model.nv) * .1
         self.set_state(qpos, qvel)
+        # print(self.model.nv, 'model nv')
+        # init_state = np.concatenate((self.init_qpos,self.init_qvel),axis=-1)
+        # np.save('/Users/xuanchen/Desktop/backdoor/mdp_perturb/init_state.npy',init_state)
         return None
 
     def viewer_setup(self):

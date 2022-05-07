@@ -18,8 +18,8 @@ class SumoEnv(MultiAgentEnv):
         self.LIM_Y = [(-2, 2), (-2, 2)]
         self.RANGE_X = self.LIM_X.copy()
         self.RANGE_Y = self.LIM_Y.copy()
-        self.arena_id = self.env_scene.model.geom_names.index(six.b('arena'))
-        self.arena_height = self.env_scene.model.geom_size[self.arena_id][1] * 2
+        self.arena_id = self.env_scene.model.geom_names.index('arena')
+        self.arena_height = self.env_scene.model.geom_size[self.arena_id][1]* 2
         self._set_geom_radius()
         self.agent_contacts = False
 
@@ -47,20 +47,21 @@ class SumoEnv(MultiAgentEnv):
         return bool(self.agents[agent_id].get_qpos()[2] > limit)
 
     def get_agent_contacts(self):
-        mjcontacts = self.env_scene.data._wrapped.contents.contact
-        ncon = self.env_scene.model.data.ncon
+        # print(dir(self.env_scene.data))
+        mjcontacts = self.env_scene.data.contact
+        ncon = self.env_scene.data.ncon
         contacts = []
         for i in range(ncon):
             ct = mjcontacts[i]
             g1 , g2 = ct.geom1, ct.geom2
             g1 = self.env_scene.model.geom_names[g1]
             g2 = self.env_scene.model.geom_names[g2]
-            if g1.find(six.b('agent')) >= 0 and g2.find(six.b('agent')) >= 0:
-                if g1.find(six.b('agent0')) >= 0:
-                    if g2.find(six.b('agent1')) >= 0 and ct.dist < 0:
+            if g1.find('agent') >= 0 and g2.find('agent') >= 0:
+                if g1.find('agent0') >= 0:
+                    if g2.find('agent1') >= 0 and ct.dist < 0:
                         contacts.append((g1, g2, ct.dist))
-                elif g1.find(six.b('agent1')) >= 0:
-                    if g2.find(six.b('agent0')) >= 0 and ct.dist < 0:
+                elif g1.find('agent1') >= 0:
+                    if g2.find('agent0') >= 0 and ct.dist < 0:
                         contacts.append((g1, g2, ct.dist))
         return contacts
 
@@ -152,13 +153,15 @@ class SumoEnv(MultiAgentEnv):
 
     def _reset_radius(self):
         self.RADIUS = self.env_scene.np_random.uniform(self.MIN_RADIUS, self.current_max_radius)
-        # print('setting Radus to', self.RADIUS)
+        print('setting Radus to', self.RADIUS)
 
     def _set_geom_radius(self):
         gs = self.env_scene.model.geom_size.copy()
         gs[self.arena_id][0] = self.RADIUS
-        self.env_scene.model.__setattr__('geom_size', gs)
-        self.env_scene.model.forward()
+        # self.env_scene.model.__setattr__('geom_size', gs)
+        # self.env_scene.sim.model.__setattr__('geom_size', gs)
+        self.env_scene.sim.model.geom_size[:] = gs
+        self.env_scene.sim.forward()
 
     def _reset_agents(self):
         # set agent 0
