@@ -35,7 +35,7 @@ class MultiAgentScene(mujoco_env.MujocoEnv):
     def reset_model(self):
         qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.1, high=.1) 
        
-        qpos[25:26] = self.init_qpos[25:26] + self.np_random.uniform(size=1, low=-.3, high=.3) 
+        # qpos[25:26] = self.init_qpos[25:26] + self.np_random.uniform(size=1, low=-.3, high=.3) 
         # print(self.init_qpos[24:27])
         # qpos = self.init_qpos + self.np_random.uniform(size=self.model.nq, low=-.3, high=.3) 
         # qpos[27] = 1
